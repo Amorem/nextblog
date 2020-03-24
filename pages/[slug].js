@@ -2,17 +2,15 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import Head from "next/head";
+import marked from "marked";
 
-const Post = ({ content, data }) => {
+const Post = ({ htmlString, data }) => {
   return (
     <>
       <Head>
         <title>{data.title}</title>
       </Head>
-      <div>
-        <div>Content below</div>
-        <pre>{content}</pre>
-      </div>
+      <div dangerouslySetInnerHTML={{ __html: htmlString }}></div>
     </>
   );
 };
@@ -36,9 +34,10 @@ export const getStaticProps = async ({ params: { slug } }) => {
     .readFileSync(path.join("posts", slug + ".md"))
     .toString();
   const parsedMarkdown = matter(markdownWithMetadata);
+  const htmlString = marked(parsedMarkdown.content);
   return {
     props: {
-      content: parsedMarkdown.content,
+      htmlString,
       data: parsedMarkdown.data
     }
   };
